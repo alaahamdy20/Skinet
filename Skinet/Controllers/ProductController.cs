@@ -29,9 +29,9 @@ namespace Skinet.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProductToReturnDto>>> GetProducts() => Ok(
+        public async Task<ActionResult<IEnumerable<ProductToReturnDto>>> GetProducts(string sort) => Ok(
             _mapper.Map<IEnumerable<ProductToReturnDto>>(
-                await _productRepository.GetAllBySpecificationAsync(new ProductsWithTypesAndBrands())));
+                await _productRepository.GetAllBySpecificationAsync(new ProductsWithTypesAndBrands(sort))));
 
         [HttpGet("{id}")]
         public async Task<ActionResult<ProductToReturnDto>> GetProduct(int id) => Ok(

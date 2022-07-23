@@ -2,22 +2,23 @@ using Core.Interfaces;
 using Infrasturcure.Data;
 using Infrasturcure.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Skinet.Extensions;
 using Skinet.Helpers;
+using Skinet.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
 var connectionString = builder.Configuration.GetConnectionString("Default");
 builder.Services.AddDbContext<StoreContext>(options => options.UseSqlite(connectionString));
+builder.Services.AddSwaggerDocumention();
 //add auto mapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 #region Repositories
 
-builder.Services.AddScoped<IProductRepository, ProductRepository>();
-builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+builder.Services.AddApplicationServices();
 
 #endregion
 
@@ -39,15 +40,17 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
+app.UseMiddleware<ExceptionMiddleware>();
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
+// if (app.Environment.IsDevelopment())
+// {
+//     app.UseSwagger();
+//     app.UseSwaggerUI();
+// }
+app.UseSwaggerDocumention();
+app.UseStatusCodePagesWithReExecute("/errors/{0}");
 app.UseHttpsRedirection();
-// app.UseRouting();
+app.UseRouting();
 app.UseStaticFiles();
 app.UseAuthorization();
 app.MapControllers();
