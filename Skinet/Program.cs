@@ -14,6 +14,14 @@ builder.Services.AddEndpointsApiExplorer();
 var connectionString = builder.Configuration.GetConnectionString("Default");
 builder.Services.AddDbContext<StoreContext>(options => options.UseSqlite(connectionString));
 builder.Services.AddSwaggerDocumention();
+builder.Services.AddCors(
+    options => options.AddPolicy("CorsPolicy",
+        builder =>
+        {
+            builder.AllowAnyMethod().AllowAnyHeader().WithOrigins("http://localhost:4200");
+        }
+    )
+);
 //add auto mapper
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 #region Repositories
@@ -52,6 +60,7 @@ app.UseStatusCodePagesWithReExecute("/errors/{0}");
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseStaticFiles();
+app.UseCors("CorsPolicy");
 app.UseAuthorization();
 app.MapControllers();
 app.Run();

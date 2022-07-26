@@ -24,15 +24,21 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
         return await _context.Set<TEntity>().ToListAsync();
     }
 
-    public Task<TEntity> GetBySpecificationAsync(ISpecifications<TEntity> spec)
+    public async Task<TEntity> GetBySpecificationAsync(ISpecifications<TEntity> spec)
     {
-        return ApplySpecification(spec).FirstOrDefaultAsync();
+        return await ApplySpecification(spec).FirstOrDefaultAsync();
     }
 
     public async Task<IReadOnlyList<TEntity>> GetAllBySpecificationAsync(ISpecifications<TEntity> spec)
     {
         return await ApplySpecification(spec).ToListAsync();
     }
+
+    public async Task<int> CountAsync(ISpecifications<TEntity> spec)
+    {
+        return await ApplySpecification(spec).CountAsync();
+    }
+
     private  IQueryable<TEntity> ApplySpecification(ISpecifications<TEntity> spec)
     {
         return  SpecificationEvaluator<TEntity>.GetQuery(_context.Set<TEntity>().AsQueryable(), spec);

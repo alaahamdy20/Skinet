@@ -6,6 +6,7 @@ using Infrasturcure.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Skinet.Dtos;
+using Skinet.Helpers;
 
 namespace Skinet.Controllers
 {
@@ -29,9 +30,15 @@ namespace Skinet.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProductToReturnDto>>> GetProducts(string sort) => Ok(
-            _mapper.Map<IEnumerable<ProductToReturnDto>>(
-                await _productRepository.GetAllBySpecificationAsync(new ProductsWithTypesAndBrands(sort))));
+        public async Task<ActionResult<IEnumerable<ProductToReturnDto>>> GetProducts([FromQuery]ProductSpecParams productParams)
+        {
+            var spec = new ProductsWithTypesAndBrands(productParams);
+            var countSpec = new ProductWithFiltersSpecificationForCount(productParams);
+            var products = await _productRepository.GetAllBySpecificationAsync(spec);
+            var data = _mapper.Map<IReadOnlyList<Product>, IReadOnlyList<ProductToReturnDto>>(products);
+            var totalItems = await _productRepository.CountAsync(countSpec);
+            return Ok(new Paginatin<ProductToReturnDto>(productParams.PageIndex, productParams.PageSize, totalItems, data));
+        }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<ProductToReturnDto>> GetProduct(int id) => Ok(
