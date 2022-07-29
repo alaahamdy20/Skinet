@@ -2,7 +2,7 @@
 
 public class ProductSpecParams
 {
-    public string Sort { get; set; }
+    public string? Sort { get; set; }
     public int PageSize
     {
         get => _pageSize;
@@ -16,7 +16,7 @@ public class ProductSpecParams
     public int? TypeId { get; set; }
     private string _search;
 
-    public string Search
+    public string? Search
     {
         get => _search;
         set => _search = value.ToLower();
